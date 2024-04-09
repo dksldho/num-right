@@ -1,72 +1,87 @@
-//랜덤번호 지정
-//유저가 번호를 입력한다, go 라는 버튼을 누름
-//만약에 유저가 랜덤번호를 맞추면, 맞췄습니다!
-//랜덤번호 < 유저번호 down, 랜덤번호 >유저번호 up
-//reset을 누르면 게임 리셋, 5번의 기회 다 쓰면 게임 끝
-//유저가1~100범위 밖 숫자를 입력하면 알려준다 기회 제거 X
-//유저가 이미 입력한 숫자를 또 입력하면, 알려준다 기회제거 x
+// 필요한 html elements 다 가져오기
+let computerNumber = 0;
+let playButton = document.getElementById("play-button");
+let resetButton = document.querySelector(".button-reset");
+let userInput = document.querySelector("#user-input");
+let resultAreaImg = document.querySelector(".main-img");
+let resultText = document.querySelector(".result-text");
+let chanceArea = document.getElementById("chance-area");
+let gameOver = false;
+let chances = 5; // 남은 기회
+let userValueList = []; // 유저가 입력한 숫자들 리스트
+let answerInput = document.querySelector('#answer');
+let checkAnswerButton = document.querySelector('#check-answer');
+let answerbox = document.querySelector('answerbox');
 
+chanceArea.innerHTML = `남은 기회:${chances}`;
+playButton.addEventListener("click", play);
+resetButton.addEventListener("click", reset);
+userInput.addEventListener("focus", focusInput);
 
-let computernum = 0
-let playbutton = document.getElementById("play-button");
-let userinput = document.getElementById("user-input");
-let resultarea = document.getElementById("result-area")
-let resetbutton = document.getElementById("reset-button")
-let chance = 5
-let gameover = false
-let chancearea = document.getElementById("chance-area")
-let history = []
+function pickRandomNumber() {
+  // 랜덤숫자 뽑기
 
-
-playbutton.addEventListener("click",play);
-resetbutton.addEventListener("click",reset)
-userinput.addEventListener("focus",function(){userinput.value=""})
-function pickrandomnum(){
-    computernum = Math.floor(Math.random() * 100)+1;
-    console.log("정답",computernum);
+  computerNumber = Math.floor(Math.random() * 100) + 1;
+  console.log("정답", computerNumber);
 }
 
+function play() {
+  // 숫자 추측하기
+  const userValue = userInput.value;
+  if (userValue < 1 || userValue > 100) {
+    resultText.textContent = "1부터 100 사이의 숫자를 입력 해주세요";
 
-function play(){
-    let uservalue = userinput.value
+    return;
+  }
 
-    if(uservalue<1 || uservalue>100){
-        resultarea.textContent="1과 100사이의 값을 입력하세요"
-        return; 
+  if (userValueList.includes(userValue)) {
+    resultText.textContent = "이미 입력한 숫자입니다. 다른 숫자를 입력해주세요";
+
+    return;
+  }
+
+  chances--;
+  chanceArea.innerHTML = `남은 기회:${chances}`;
+  userValueList.push(userValue);
+  if (userValue < computerNumber) {
+    resultAreaImg.src =
+      "image8.jpg";
+    resultText.textContent = "음,,, 그거보단 큰 것 같은데";
+  } else if (userValue > computerNumber) {
+    resultAreaImg.src = "image8.jpg";
+    resultText.textContent = "그거보단 작다!";
+  } else {
+    resultAreaImg.src =
+      "https://file3.instiz.net/data/cached_img/upload/2019/01/17/2/f51a771826e8d84ea0f0de1a6f23e263.gif";
+    resultText.textContent = "정답! 소원을 빌어봐";
+    gameOver = true;
     }
-    
-    if(history.includes(uservalue)){
-        resultarea.textContent = "이미 입력한 숫자 입니다 다른 숫자를 입력해 주세요"
-        return;
-    }
-    chance --;
-    chancearea.textContent= `남은 기회 : ${chance}번`
-    console.log("chance",chance)
 
-    if(uservalue < computernum){
-        resultarea.textContent = "!!UP!!"
-    }else if(uservalue > computernum){
-        resultarea.textContent = "!!down!!"
-    }else{
-        resultarea.textContent = "!!정답입니다!!"
-        gameover=true
-    }
+  if (chances == 0) {
+    gameOver = true;
+  }
 
-    history.push(uservalue)
-    console.log(history)
-
-    if(chance < 1){
-        gameover=true
-    }
-
-    if(gameover==true){
-        playbutton.disabled = true
-    }
+  if (gameOver == true) {
+    playButton.disabled = true;
+  }
 }
 
-function reset(){
-    userinput.value = ""
-    pickrandomnum()
-    resultarea.textContent = "결과값이 나옵니다"
+function focusInput() {
+  userInput.value = "";
 }
-pickrandomnum()
+
+function reset() {
+  //리셋
+  pickRandomNumber();
+  userInput.value = "";
+  resultAreaImg.src =
+    "https://media1.giphy.com/media/9DinPR8bzFsmf74j9W/giphy.gif";
+  resultText.textContent = "죽기 싫다면 맞춰라";
+  gameOver = false;
+  playButton.disabled = false;
+  chances = 5;
+  chanceArea.innerHTML = `남은 기회:${chances}`;
+  userValueList = [];
+}
+
+pickRandomNumber();
